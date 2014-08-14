@@ -1,0 +1,366 @@
+1. 有监督学习
+
+
+这种情况下，数据是带有标注的（点此进入scikit-learn有监督学习页面）。有监督学习可分为两类：
+
+1.1 分类
+
+样本属于两个或者更多的类，我们希望学习已经标注的数据，从而将未标注的数据分类。例如，手写数字识别，我们将每个输入向量分到某个类别。从另外一个角度，也可以把分类问题看作是一种离散式（相对于连续）的有监督学习。在此，分类的数量是有限的，对于每一个样本，我们都试着给他们标注正确的类别。
+
+1.2 回归
+
+如果我们想要的结果是由一个或者多个连续变量组成时，我们则称其为回归。例如，通过三文鱼的年龄和重量来推测它的长度。
+
+2. 无监督学习
+
+这种情况下，训练数据是一个集合，该集合由未标注目标值的向量X组成。此类问题的目标有几种。要么是要将数据划分为相似的几组，这种叫做聚类；要么是确定数据的分布，这种叫做密度估计；要么是将数据从高维度空间投射到二、三维空间里，这种叫做可视化。
+
+
+####目标函数与优化
+
+
+误差函数表达式
+
+#####Regularization
+
+存在大量噪声特征时，L1正则化的LogisticRegression只需要与特征维度成对数比的训练样本，L2及其他旋转不变的模型需要线性比例的训练样本。
+
+L1与L2的区别
+
+考虑到拉普拉斯分布的特性，在对大数据进行LR分析的时候，很多参数会被直接优化成0。这就说明这些特征在整个学习过程中没有影响，降低了运算复杂度，同时也会提高模型效果。从这一点上来说，L1正则要比PCA降维效果要好。因为PCA的过程中会构造新的特征，这其实不利于我们反过来理解模型。而L1正则没有加入新特征，而是降低无关特征的权重，更加容易理解。
+
+
+Practically, I think the biggest reasons for regularization are 1) to `avoid overfitting` by not generating high coefficients for predictors that are sparse.   2) to `stabilize the estimates` especially when there's collinearity共线性 in the data.  
+
+1) is inherent in the regularization framework.  Since there are two forces pulling each other in the objective function, if there's no meaningful loss reduction, the increased penalty from the regularization term wouldn't improve the overall objective function. This is a great property since  a lot of noise would be automatically filtered out from the model.  
+
+
+To give you an example for 2),  if you have two predictors that have same values, if you just run a regression algorithm on it since the data matrix is singular, your beta coefficients will be Inf if you try to do a straight matrix inversion. But if you  add a very small regularization lambda to it, you will get stable beta coefficients with the coefficient values evenly divided between the equivalent two variables. 
+
+
+For the difference between L1 and L2, the following graph demonstrates why people bother to have L1 since L2 has such an elegant analytical solution and is so computationally straightforward. Regularized regression can also be represented as a constrained regression problem (since they are Lagrangian equivalent). In Graph (a), the black square represents the feasible region of of the L1 regularization while graph (b) represents the feasible region for L2 regularization. The contours in the plots represent different loss values (for the unconstrained regression model ). The feasible point that minimizes the loss is more likely to happen on the coordinates on graph (a) than on graph (b) since graph (a) is more angular.  This effect amplifies when your number of coefficients increases, i.e. from 2 to 200. 
+
+
+
+
+The implication of this is that the L1 regularization gives you sparse estimates. Namely, in a high dimensional space, you got mostly zeros and a small number of non-zero coefficients. This is huge since it incorporates variable selection to the modeling problem. In addition, if you have to score a large sample with your model, you can have a lot of computational savings since you don't have to compute features(predictors) whose coefficient is 0. I personally think L1 regularization is one of the most beautiful things in machine learning and convex optimization. It is indeed widely used in bioinformatics and large scale machine learning for companies like Facebook, Yahoo, Google and Microsoft.
+
+As per Andrew Ng's Feature selection, l1 vs l2 regularization, and rotational invariance paper, expect l1 regularization be better than l2 regularization if you have a lot less examples than features.
+
+Conversely, if your features are generated from something like PCA, SVD, or any other model that assumes rotational invariance, or you have enough examples, l2 regularization is expected to do better because it is directly related to minimizing the VC dimension of the learned classifier, while l1 regularization doesn't have this property.
+
+OS course, you can always use the elastic net regularization (which is a sum of the l1 and l2 regularizers) and tune the parameters to get the best of both worlds. Scikits.learn has a good and efficient implementation of elastic net and grid search to tune the hyperparameters.
+
+**Reference**
+
+[Sparsity and Some Basics of L1 Regularization](http://freemind.pluskid.org/machine-learning/sparsity-and-some-basics-of-l1-regularization/)
+
+####生成模型和判别模型的区别
+
+**Reference**
+
+[Discriminative Modeling vs Generative Modeling](http://freemind.pluskid.org/machine-learning/discriminative-modeling-vs-generative-modeling/)
+
+[判别式模型与生成式模型](http://www.leexiang.com/discriminative-model-and-generative-model)
+
+判别模型包括
+
+	Logistic Regression
+	SVM	
+	Traditional Neural Networks	
+	Nearest Neighbor	
+	CRF	
+	Linear Discriminant Analysis	
+	Boosting	
+	Linear Regression
+
+
+生成模型包括
+
+	Gaussians, Naive Bayes, Mixtures of Multinomials
+	Mixtures of Gaussians, Mixtures of Experts, HMMs
+	Sigmoidal Belief Networks, Bayesian Networks
+	Markov Random Fields
+	Latent Dirichlet Allocation
+
+成功应用情况
+Generative Model的应用
+ NLP
+– Traditional rule-based or Boolean logic systems
+Dialog and Lexis-Nexis) are giving way to statistical
+approaches (Markov models and stochastic context
+grammars)
+ Medical Diagnosis
+– QMR knowledge base, initially a heuristic expert
+systems for reasoning about diseases and symptoms
+been augmented with decision theoretic formulation
+ Genomics and Bioinformatics
+– Sequences represented as generative HMMs
+
+Discriminative Model的应用：
+ Image and document classification
+ Biosequence analysis
+ Time series prediction
+
+Discriminative Model缺点：
+? Lack elegance of generative
+– Priors, structure, uncertainty
+? Alternative notions of penalty functions,
+regularization, kernel functions
+? Feel like black-boxes
+– Relationships between variables are not explicit
+and visualizable
+
+Bridging Generative and Discriminative：
+? Can performance of SVMs be combined
+elegantly with flexible Bayesian statistics?
+? Maximum Entropy Discrimination marries
+both methods
+– Solve over a distribution of parameters (a
+distribution over solutions)
+
+####分类器
+
+#####Logistic Regression
+
+[Logistic Regression垃圾邮件分类](http://guangchun.wordpress.com/2012/06/19/logistic-regression/)
+
+####如何选择分类器
+
+你知道如何为你的分类问题选择合适的机器学习算法吗？当然，如果你真正关心准确率，那么最佳方法是测试各种不同的算法（同时还要确保对每个算法测试不同参数），然后通过交叉验证选择最好的一个。但是，如果你只是为你的问题寻找一个**“足够好”**的算法，或者一个起点，这里有一些我这些年发现的还不错的一般准则。
+
+#####你的训练集有多大？
+
+如果训练集很小，那么高偏差/低方差分类器（如朴素贝叶斯分类器）要优于低偏差/高方差分类器（如k近邻分类器），因为后者容易过拟合。然而，随着训练集的增大，低偏差/高方差分类器将开始胜出（它们具有较低的渐近误差），因为高偏差分类器不足以提供准确的模型。
+你也可以认为这是生成模型与判别模型的区别。
+
+#####一些特定算法的优点
+
+1. 朴素贝叶斯的优点：
+
+超级简单，你只是在做一串计算。如果朴素贝叶斯（NB）条件独立性假设成立，相比于逻辑回归这类的判别模型，朴素贝叶斯分类器将收敛得更快，所以你只需要较小的训练集。而且，即使NB假设不成立，朴素贝叶斯分类器在实践方面仍然表现很好。如果想得到简单快捷的执行效果，这将是个好的选择。它的主要缺点是，不能学习特征之间的相互作用（比如，它不能学习出：虽然你喜欢布拉德·皮特和汤姆·克鲁斯的电影，但却不喜欢他们一起合作的电影）。
+
+2. 逻辑回归的优点：
+
+有许多正则化模型的方法，你不需要像在朴素贝叶斯分类器中那样担心特征间的相互关联性。与决策树和支撑向量机不同，你还可以有一个很好的概率解释，并能容易地更新模型来吸收新数据（使用一个在线梯度下降方法）。如果你想要一个概率框架（比如，简单地调整分类阈值，说出什么时候是不太确定的，或者获得置信区间），或你期望未来接收更多想要快速并入模型中的训练数据，就选择逻辑回归。
+
+3. 决策树的优点：
+
+易于说明和解释（对某些人来说—我不确定自己是否属于这个阵营）。它们可以很容易地处理特征间的相互作用，并且是非参数化的，所以你不用担心异常值或者数据是否线性可分（比如，决策树可以很容易地某特征x的低端是类A，中间是类B，然后高端又是类A的情况）。一个缺点是，不支持在线学习，所以当有新样本时，你将不得不重建决策树。另一个缺点是，容易过拟合，但这也正是诸如随机森林（或提高树）之类的集成方法的切入点。另外，随机森林往往是很多分类问题的赢家（我相信通常略优于支持向量机），它们快速并且可扩展，同时你不须担心要像支持向量机那样调一堆参数，所以它们最近似乎相当受欢迎。
+
+4. SVMs的优点：
+
+高准确率，为过拟合提供了好的理论保证，并且即使你的数据在基础特征空间线性不可分，只要选定一个恰当的核函数，它们仍然能够取得很好的分类效果。它们在超高维空间是常态的文本分类问题中尤其受欢迎。然而，它们内存消耗大，难于解释，运行和调参也有些烦人，因此，我认为随机森林正渐渐开始偷走它的“王冠”。
+
+#####然而…尽管如此
+
+回忆一下，**更好的数据往往打败更好的算法**，设计好的特征大有裨益。并且，如果你有一个庞大数据集，这时你使用哪种分类算法在分类性能方面可能并不要紧（所以，要基于速度和易用性选择算法）。
+重申我上面说的,如果你真的关心准确率,一定要尝试各种各样的分类器,并通过交叉验证选择最好的一个。或者，从Netflix Prize(和Middle Earth)中吸取教训,只使用了一个集成方法进行选择。
+
+列表对比
+
+|分类器|优点|缺点|并行|大数据|在线学习|
+|:--:|:--:|:--:|:--:|:--:||
+|Logistic Regression|||||Y|
+|Decission Tree||||||||N|
+
+
+####Scikit-learn的common practice
+
+各种分类器的数据加载，模型建立,训练,交叉验证流程
+
+[scikit-learn使用笔记与sign prediction简单小结](http://chentingpc.me/article/?id=1399)
+
+
+####Ensemble methods
+
+Bagging works well for unstable base models and can reduce variance in predictions. Boosting can be used with any type of model and can reduce variance and bias in predictions.
+
+#####Averaging methods
+
+Examples: Bagging methods, Forests of randomized trees...
+
+#####Boosting methods
+
+Examples: AdaBoost, Gradient Tree Boosting, ..
+
+#####Boosting
+
+给训练样本以不同的权重
+
+• Multiple models developed in sequence by assigning 
+higher weights (boosting) for those training cases that 
+are difficult to classify
+流程：
+
+生成第一个模型
+
+循环:
+	对错分样本更高的权重
+	生成新的模型
+
+根据模型精确度给各个模型一个权重,线性加权各个模型的分类结果得到最终结果
+
+Generate the first model
+Repeat
+Weight the training data such that the misclassified cases get 
+higher weights
+Generate the next model
+Combine predictions from individual models (weighted by 
+accuracy of the models) 
+
+Adaboost
+
+#####Bagging
+
+各模型的训练数据是抽样得到的，抽样策略
+
+得到结果的两种方法:Average predictions和majority voting
+
+适用于不同的抽样数据集训练得到的分类器的分类结果有极大差别的情况
+
+• Combining predictions from multiple models
+• Different models obtained from bootstrap samples of 
+training data
+• `Average predictions` or `majority voting` from multiple 
+models
+• If **different training datasets cause significant differences in learned model**, then bagging can improve accuracy.
+
+优点:
+• Advantage – improved accuracy
+
+缺点：
+模型不好解释
+可以改进不稳定学习算法的性能，但有可能降低稳定算法的性能,双面刃
+• Disadvantage – no simple, interpretable model
+• Bagging can improve performance for unstable learning 
+algorithms 
+– Performance of stable learning methods can deteriorate
+• Bagging good models can make them optimal
+– Bagging poor models can make them worse
+
+
+
+
+#####Ensemble
+
+Stacking
+
+
+adaboost decition tree random forest fpgrowth
+
+
+####分布式机器学习算法实现
+
+方便程度：Spark > Hadoop > MPI， 代码简洁度：Spark > Hadoop > MPI，限制程度：MapReduce > Spark > MPI，MPI是最自由的，写起来也是最麻烦的，所以任何分布式计算框架，都似乎是在抽象和性能之间进行折中。
+
+######常见面试问题
+
+逻辑回归和决策树区别？适用范围？
+logistic regression可以在线学习,决策树在有新数据输入时需要重新训练整个模型
+
+spark和mapreduce区别？
+
+1，Spark的中间数据放到内存中，对于迭代运算效率比较高。
+
+2，Spark比Hadoop更通用。
+
+Spark提供的数据集操作类型有很多种，不像Hadoop只提供了Map和Reduce两种操作。比如map, filter, flatMap,sample, groupByKey, reduceByKey, union, join, cogroup, mapValues, sort,partionBy等多种操作类型，他们把这些操作称为Transformations。同时还提供Count, collect, reduce, lookup, save等多种actions。
+
+3，容错性。
+
+从Spark的论文《Resilient Distributed Datasets: AFault-Tolerant Abstraction for In-Memory Cluster Computing》中没看出容错性做的有多好。倒是提到了分布式数据集计算，做checkpoint的两种方式，一个是checkpoint data，一个是logging the updates。貌似Spark采用了后者。但是文中后来又提到，虽然后者看似节省存储空间。但是由于数据处理模型是类似DAG的操作过程，由于图中的某个节点出错，由于lineage chains的依赖复杂性，可能会引起全部计算节点的重新计算，这样成本也不低。他们后来说，是存数据，还是存更新日志，做checkpoint还是由用户说了算吧。相当于什么都没说，又把这个皮球踢给了用户。所以我看就是由用户根据业务类型，衡量是存储数据IO和磁盘空间的代价和重新计算的代价，选择代价较小的一种策略。
+
+
+adaboost原理？
+java设计模式？
+层次聚类？
+预测薪水的特征提取？
+svm简述 适合于什么样的数据？
+关联规则挖掘 frequent pattern mining
+广告和
+**CTR预估**
+Logistic Regression
+
+Stochastic Gradient Descent
+
+[http://cs229.stanford.edu/notes/cs229-notes1.pdf](http://cs229.stanford.edu/notes/cs229-notes1.pdf)
+
+[sgd推导文档(cmu)](http://www.cs.cmu.edu/~wcohen/10-605/assignments/sgd.pdf)
+
+**点击反作弊**
+
+simjoin
+
+广告id1: ip1 ip2 ip3 
+广告id2: ipx ipx ipx ...
+
+众多IP访问大量id的作弊情况,访问量大且相似度高的item对多的话很可疑，可算某种形式的聚类
+
+**神经网络模型**
+
+**决策树中如何减枝**
+
+决策树为什么(WHY)要剪枝？原因是避免决策树过拟合(Overfitting)样本。
+
+PrePrune：预剪枝，及早的停止树增长，方法可以参考见上面树停止增长的方法。
+PostPrune：后剪枝，在已生成过拟合决策树上进行剪枝，可以得到简化版的剪枝决策树。
+其实剪枝的准则是如何确定决策树的规模，可以参考的剪枝思路有以下几个：
+1：使用训练集合(Training Set）和验证集合(Validation Set)，来评估剪枝方法在修剪结点上的效用
+2：使用所有的训练集合进行训练，但是用统计测试来估计修剪特定结点是否会改善训练集合外的数据的评估性能，如使用Chi-Square（Quinlan，1986）测试来进一步扩展结点是否能改善整个分类数据的性能，还是仅仅改善了当前训练集合数据上的性能。
+3：使用明确的标准来衡量训练样例和决策树的复杂度，当编码长度最小时，停止树增长，如MDL(Minimum Description Length)准则。
+
+后剪枝
+
+Reduced-Error Pruning(REP,错误率降低剪枝）
+
+Pessimistic Error Pruning(PEP，悲观剪枝）
+
+canopy clustering
+
+
+######Hierarchical tag visualization and application for tag recommendations citation 7
+
+关联分析可以解决一词多义的问题,挖掘到的关系更符合视频网站的特点,而非知识百科
+
+父子关系的预测:
+
+Co(ti, tj ) 标签ti,tj打同一文档的次数
+D(ti|¬tj )  标签ti出现在某一文档而tj没有出现的次数
+对任意tag,有D(ti) = Co(ti, tj) + D(ti|¬tj ).
+
+Co(programming, java) = 200
+
+D(java|¬programming)= 29
+
+D(programming|¬java) = 239
+
+文氏图
+
+programming比java更抽象,java应该属于其子类
+
+逻辑回归预测父子关系
+
+for each i, j 2 T , i < j
+(xk, yk) = 
+
+({ti − tj},+1) if ti >r tj
+({ti − tj},−1) if ti <r tj
+; otherwise
+>r is true when D(ti|¬tj )/D(tj |¬ti) > ,
+<r is true when D(ti|¬tj )/D(tj |¬ti) < 1/.
+
+每个标签的feature是
+
+	H(t)=熵 H(t) = -Sum_from1toN(p(ti)*log p(ti)), where the summation is over all N topics that the tag t belongs to, and p(ti) the probability that t appears in the ith topic
+	C(t)=总出现数
+	D(t)=distinct出现数
+
+D(ti|¬tj )/D(tj |¬ti)的经验阈值是2,记得用spark写预测程序的时候阈值和其paper上的不一样,比这个大很多,因为数据量大很多
+
+tf-idf过滤
+
+
+
+
+
