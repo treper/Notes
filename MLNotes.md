@@ -1,3 +1,5 @@
+
+
 1. 有监督学习
 
 
@@ -123,8 +125,149 @@ distribution over solutions)
 
 #####Logistic Regression
 
+######核函数
+
+sigmoid函数:
+
+	g(x)=e^x/(1+e^x)
+	值域(0,1)
+
+hyperbolic tangent函数 
+
+	tanh(x)=(e^x-e^(-x))/(e^x+e^(-x))
+	值域(-1,1)，因此常用于神经网络
+
+* a rescaling of the logistic sigmoid
+* Often performs better than the logistic function because of its symmetry. Ideal for customization of multilayer perceptrons, particularly the hidden layers.
+
+The reason behind using the sigmoid function is that it is derived from probability and maximum likelihood. While the other functions may work very similarly, they will lack this probabilistic theory background. For details see for example http://luna.cas.usf.edu/~mbrannic/files/regression/Logistic.html or http://www.cs.cmu.edu/~tom/mlbook/NBayesLogReg.pdf
+
+关于为何选择sigmoid函数而不选择tanh函数是因为是源于概率论和最大似然估计，而其他函数虽然效果类似，但是没有这个背景。按我的理解，事件发生的几率是由logit函数定义的，而logit函数推导可得到事件发生的几率的对数正好等于w*x。细节参考：
+[http://luna.cas.usf.edu/~mbrannic/files/regression/Logistic.html](http://luna.cas.usf.edu/~mbrannic/files/regression/Logistic.html)
+[http://www.cs.cmu.edu/~tom/mlbook/NBayesLogReg.pdf](http://www.cs.cmu.edu/~tom/mlbook/NBayesLogReg.pdf)
+
+#####损失函数
+
+* 0-1 损失函数
+* 平方损失函数
+* 绝对损失函数
+* 对数损失函数
+
+逻辑回归的对数损失函数正好是最大似然函数的负值，求损失函数的最小值即求最大似然函数的最大值
+
+#####多分类问题
+
+one vs. all框架
+对每一类训练一个二分类器，取N个分类器输出概率最大的那个作为预测值
+
+######如何处理缺失值
+
+1. 使用均值代替
+2. 使用特殊值如-1
+3. 忽略该数据
+4. 使用相似item的平均值
+5. 使用机器学习算法来预测此值
+
+
 [Logistic Regression垃圾邮件分类](http://guangchun.wordpress.com/2012/06/19/logistic-regression/)
 
+[http://blog.xlvector.net/2014-02/different-logistic-regression/](http://blog.xlvector.net/2014-02/different-logistic-regression/)
+#####Random Forest(随机森林)
+
+对多元公线性不敏感，结果对缺失数据和非平衡的数据比较稳健，可以很好地预测多达几千个解释变量的作用
+
+######随机森林优点
+
+随机森林是一个最近比较火的算法，它有很多的优点：
+
+* 在数据集上表现良好，两个随机性的引入，使得随机森林不容易陷入过拟合
+
+* 在当前的很多数据集上，相对其他算法有着很大的优势，两个随机性的引入，使得随机森林具有很好的抗噪声能力
+
+* 它能够处理很高维度（feature很多）的数据，并且不用做特征选择，对数据集的适应能力强：既能处理离散型数据，也能处理连续型数据，数据集无需规范化
+
+* 可生成一个Proximities=（pij）矩阵，用于度量样本之间的相似性： pij=aij/N, aij表示样本i和j出现在随机森林中同一个叶子结点的次数，N随机森林中树的颗数
+
+* 在创建随机森林的时候，对generlization error使用的是无偏估计
+
+* 训练速度快，可以得到变量重要性排序（两种：基于OOB误分率的增加量和基于分裂时的GINI下降量
+
+* 在训练过程中，能够检测到feature间的互相影响
+
+* 容易做成并行化方法
+
+* 实现比较简单
+
+######训练集的采样
+
+**行采样**：即样本的采样
+
+* 放回抽样(Sampling with replacement,Bootstrap Sampling)
+* 不放回抽样(Sampling without replacement)
+
+随机森林采用的是放回抽样，保证有重复样本被不同决策树分类；每一棵树的输入样本都不是全部的样本，使得相对不容易出现over-fitting。
+
+**列采样**：即特征的采样，从M个feature中，选择m个（m << M）
+
+######完全分裂
+
+对采样之后的数据使用完全分裂的方式建立出决策树，这样决策树的某一个叶子节点要么是无法继续分裂的，要么里面的所有样本的都是指向的同一个分类。一般很多的决策树算法都一个重要的步骤——剪枝，但是这里不这样干，由于之前的两个随机采样的过程保证了随机性，所以就算不剪枝，也不会出现over-fitting。
+
+######决策树的建立
+
+* 信息增益
+
+假如我们拥有M个类别标签
+
+	C={C1,C2,C3....Cn}
+
+并且拥有N个特征：
+
+	T={T1,T2,T3....Tn}
+
+那么对于某一个特征来说，加入特征项Ti是离散的
+
+IG(C|Ti)=H(C)-H(C|Ti)
+
+**熵**：
+
+	E(s1,s2,......,sm)=sum(Pilog2(Pi))(i=1...m)
+
+其中数据集为S,m为S的分类数目,Pi≈|Si/|S|，Ci为某分类标号，Pi为任意样本属于Ci的概率，Si为分类Ci上的样本数
+
+熵E(s1,s2,……,sm)越小，s1,s2,……,sm就越有序（越纯），分类效果就越好。
+
+由属性`A`划分为子集的熵：`A`为属性，具有`V`个不同的取值,S被A划分为V个子集s1,s2,……,sv，sij是子集sj中类Ci的样本数。E(A)= ∑(s1j+ ……+smj)/s * I(s1j,……,smj)
+
+**条件熵**
+
+**信息增益**：
+	
+	IG=E(S)-E(S|T)
+
+选择划分属性
+
+* 几种不同决策树
+
+ID3使用信息增益，c4.5使用信息增益比，我在网上找到的说法是信息增益的缺点是比较偏向选择取值多的属性
+
+一个属性的信息增益越大，表明属性对样本的熵减少的能力更强，这个属性使得数据由不确定性变成确定性的能力越强。
+所以如果是取值更多的属性，更容易使得数据更“纯”（尤其是连续型数值），其信息增益更大，决策树会首先挑选这个属性作为树的顶点。结果训练出来的形状是一棵庞大且深度很浅的树，这样的划分是极为不合理的。
+
+C4.5使用了信息增益率，在信息增益的基础上除了一项split information,来惩罚值更多的属性。
+
+#####随机森林实例
+
+[http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#micro3](http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#micro3)
+
+
+
+####几种采样方式的对比
+
+**Reference**
+
+[http://blog.sina.com.cn/s/blog_49ea41a201018ctt.html](http://blog.sina.com.cn/s/blog_49ea41a201018ctt.html)
+ 
 ####如何选择分类器
 
 你知道如何为你的分类问题选择合适的机器学习算法吗？当然，如果你真正关心准确率，那么最佳方法是测试各种不同的算法（同时还要确保对每个算法测试不同参数），然后通过交叉验证选择最好的一个。但是，如果你只是为你的问题寻找一个**“足够好”**的算法，或者一个起点，这里有一些我这些年发现的还不错的一般准则。
@@ -256,6 +399,15 @@ adaboost decition tree random forest fpgrowth
 
 ######常见面试问题
 
+如何对待标称型(类别、类目)特征?[stackoverflow](http://stats.stackexchange.com/questions/95212/improve-classification-with-many-categorical-variables)
+
+* 使用dummy variables,例子：color:blue,purple,red,如果直接编码为1,2,3并建模y=a+bx.如果blue卖得比purple多，blue卖的比red多，由purple-blue销量得1b<2b，由blue-red销量得3b<2b,矛盾，正确的做法是使用3个布尔值color#purple, color#blue and color#red 见scikit-learn文档[http://www.astroml.org/sklearn_tutorial/general_concepts.html#handling-categorical-features](http://www.astroml.org/sklearn_tutorial/general_concepts.html#handling-categorical-features)
+
+
+* 随机森林天然的可以用于categorical feature(不过scikit-learn目前不支持)，而不必为每个类编码导致内存不够，另外高维正交的特征容易over fitting，数据足够的话可能不会很显著。建议使用随机森林做特征选择，两种方法[http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#micro3](http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#micro3)
+
+
+
 逻辑回归和决策树区别？适用范围？
 logistic regression可以在线学习,决策树在有新数据输入时需要重新训练整个模型
 
@@ -279,10 +431,35 @@ java设计模式？
 svm简述 适合于什么样的数据？
 关联规则挖掘 frequent pattern mining
 广告和
+
+
+
+
 **CTR预估**
 Logistic Regression
 
 Stochastic Gradient Descent
+
+训练
+
+Batch
+
+所有
+
+Online Learning
+
+小部分
+
+Learning Rate
+
+一般学习率一开始设置得比较高,然后随迭代逐渐减小,Batch中是下一轮迭代减小,Online 是每一个点都减小
+
+One way to adjust the learning rate is to have a constant divide by the square root of N (where N is the number of data point seen so far).
+
+ ɳ = ɳ_initial / (t ^ 0.5).
+
+The learning rate can be adjusted as well to achieve a better stability in convergence.  In general, the learning rate is higher initially and decrease over the iteration of training (in batch learning it decreases in next round, in online learning it decreases at every data point).  
+
 
 [http://cs229.stanford.edu/notes/cs229-notes1.pdf](http://cs229.stanford.edu/notes/cs229-notes1.pdf)
 
@@ -360,7 +537,23 @@ D(ti|¬tj )/D(tj |¬ti)的经验阈值是2,记得用spark写预测程序的时�
 
 tf-idf过滤
 
+#####Bag-of-words model
 
+常用于自然语言处理和信息检索，也用于计算机视觉中
+
+对所有出现的词编码，生成一个词典，词->编号,然后每句话就编码为一个词典内词个数维度的向量，每一维度为词在文档中出现的次数(也可以用tf-idf)
+
+应用：反垃圾信息
+
+[Bag-of-words model](http://en.wikipedia.org/wiki/Bag-of-words_model)
+
+#####聚类
+
+[http://www.cnblogs.com/joyeecheung/p/3442553.html](http://www.cnblogs.com/joyeecheung/p/3442553.html)
+
+DBSCAN
+
+[http://www.tuicool.com/articles/AjQbaa](http://www.tuicool.com/articles/AjQbaa)
 
 
 

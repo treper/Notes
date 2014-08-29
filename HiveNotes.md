@@ -1,3 +1,114 @@
+#####Hive常用操作
+**建表**
+	
+
+	create table md5id_vv(md5id int,vv int)
+	row format delimited
+	fields terminated by '\t'
+	stored as textfile;
+
+
+其他常用类型biging,string
+
+导入本地数据
+
+	load data local inpath "/home/mps/software/tag_score_sort" into table tag_score;
+
+导入hdfs数据
+
+
+ select sum(vv) from md5id_vv;
+
+**表描述**
+
+	show tables;
+	desc table;
+
+**常用查询**
+	
+	select distinct(tagid) from labeldic_type3;
+	select max(*) from table;  
+	select sum(*) from table;   
+
+**UDF**
+
+* UDF：操作单个数据行，产生单个数据行；
+* UDAF：操作多个数据行，产生一个数据行。
+* UDTF：操作一个数据行，产生多个数据行一个表作为输出。
+
+		add jar testudf.jar
+		create temporary function md5tagcount as 'com.ataosky.hive.udtf.MD5TagMapCount';  
+		create table md5idlist (md5id int,list string) 
+		row format delimited
+		fields terminated by '\t'
+		stored as textfile;
+		
+		load data local inpath "/home/mps/software/md5_labels_sample1k" into table md5idlist;
+		
+		select md5tagcount(list) as (word, cnt) from md5idlist;
+
+可作为map,reduce逻辑插入到hive sql中
+
+#####日志导入
+
+1. 建表
+
+		create table(id INT,uid INT,iid INT,lid INT,aid INT,ct INT,lvt INT,done INT,info STRING) PARTITIONED BY (recordDate INT) CLUSTERED BY(uid) SORTED BY(lvt) INTO 16 BUCKETS ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+
+
+
+hive> create table ViewRecord(id INT,uid INT,iid INT,lid INT,aid INT,ct INT,lvt INT,done INT,info STRING) PARTITIONED BY (recordDate INT) CLUSTERED BY(uid) SORTED BY(lvt) INTO 16 BUCKETS ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';  
+OK
+Time taken: 3.981 seconds
+hive> set hive.enforce.bucketing = true;
+hive> LOAD DATA LOCAL INPATH 'ViewRecord_20140824' OVERWRITE INTO TABLE ViewRecord;                              
+FAILED: SemanticException [Error 10062]: Need to specify partition columns because the destination table is partitioned
+hive> LOAD DATA LOCAL INPATH 'ViewRecord_20140824' OVERWRITE INTO TABLE ViewRecord PARTITION (recordDate=20140824);
+Copying data from file:/home/mps/software/ViewRecord_20140824
+Copying file: file:/home/mps/software/ViewRecord_20140824
+Loading data to table default.viewrecord partition (recorddate=20140824)
+Partition default.viewrecord{recorddate=20140824} stats: [num_files: 1, num_rows: 0, total_size: 3067528656, raw_data_size: 0]
+Table default.viewrecord stats: [num_partitions: 1, num_files: 1, num_rows: 0, total_size: 3067528656, raw_data_size: 0]
+OK
+Time taken: 36.587 seconds
+hive> 
+
+FAILED: ParseException line 1:12 extraneous input '(' expecting Identifier near 'id' in create table statement
+
+hive是不支持insert into 语句的
+分片分桶对每天的日志
+hive不支持更新，事务和索引
+
+#####分区和桶
+
+分区的好处是对于同一分区内的数据进行查询的时候将会非常高效，比如按年份分区，查某一年的数据只需要到这个分区中检索就行了。分区是在创建表的时候用 PARTITIONED BY 子句定义的。
+
+	CREATE TABLE LOGS(ts BEGINT,line STRING)
+
+	PARTITIONED BY (dt STRING,country STRING);
+
+在LOAD数据的时候则需要指定分区值：
+
+	LOAD DATA LOCAL INPUT 'input/hive/partitions/file1'
+
+    INTO TABLE logs
+
+    PARTITION (dt='2001-1-1',country='GB');
+       
+在文件系统中，分区只是表目录下嵌套的子目录。如按分区检索数据其实就是按文件系统目录检索数据了。
+
+SHOW PARTITIONS logs; 命令会返回当前表中所有分区信息。PARTITIONED BY 子句中的列是表中正式的列，称为分区列。但是数据文件并不包含这些列，因为在目录中包含了。可以像普通列一样使用分区列（partition column）
+
+	select ts,dt,line
+	  from logs
+	 where country='GB'
+
+按照JOIN顺序中的最后一个表应该尽量是大表
+
+
+
+
 hive -e "select md5_labels.lables,lis_video_rank_d1_20140501.vv from md5_labels join md5Id_md5 on (md5_labels.md5id=md5Id_md5.md5id) join itemId_md5 on (md5Id_md5.md5=itemId_md5.md5) join lis_video_rank_d1_20140501 on (itemId_md5.itemid=lis_video_rank_d1_20140501.itemid);" > labels_vv
 hadoop jar labelsVV.jar /home/TagHierarchy/labels_vv /home/TagHierarchy/label_vv
 hadoop fs -getmerge /home/TagHierarchy/label_vv label_vv
