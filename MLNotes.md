@@ -556,4 +556,23 @@ DBSCAN
 [http://www.tuicool.com/articles/AjQbaa](http://www.tuicool.com/articles/AjQbaa)
 
 
+#####机器学习博客列表
 
+[http://fastml.com/](http://fastml.com/)
+
+
+#####实际问题解决
+
+给定以下格式数据，6,7月几千万条:
+userId timestamp 对A品牌的点击数 对A品牌的收藏数目
+
+预测user会不会购买
+
+主要方法:
+
+* 时间序列，购买是时间的模型，进行数学建模，预测概率，按阈值判断
+* 逻辑回归，决策树
+* 对商品聚类
+* 建立用户的价格偏好
+
+####什么是模式识别

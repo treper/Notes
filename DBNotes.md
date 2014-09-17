@@ -1,3 +1,8 @@
+#####LevelDB
+
+LevelDB性能非常之高。在一台4个Q6600的CPU机器上，每秒钟写数据超过
+40w，而随机读的性能每秒钟超过10w。
+
 #####MyISAM InnoDB 区别
 
 http://www.cnblogs.com/youxin/p/3359132.html
