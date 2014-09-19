@@ -21,3 +21,15 @@
 [视频](http://www.scalacourses.com/student/showLecture/80)
 
 [http://cn.soulmachine.me/blog/20140130/](http://cn.soulmachine.me/blog/20140130/)
+
+
+
+####Spark-shell的使用
+
+加载本地文件
+
+	val file =sc.textFile("file:///home/mps/software/cloud/md5Id_itemId.txt")
+
+加载hdfs文件
+
+	val file =sc.textFile("hdfs://finger-test2:54310/home/TagHierarchy/comatrix_ct")
