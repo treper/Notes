@@ -25,6 +25,15 @@ python模块:
 	
 	sudo pip install reportlab pillow python-mysql elixir mechanize MySQL-python
 
+
+安装Opencv
+
+有可能要手动下载opencv，有时连不上，删掉下载的部分，直接把下载好的压缩包放到Opencv文件夹下，安装
+
+	sudo sh ./opencv2_4_9.sh
+
+
+
 #####建立并导入数据库
 
 建立
