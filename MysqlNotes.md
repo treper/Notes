@@ -41,3 +41,44 @@ linux系统配置文件：/etc/my.cnf
 
 （3）我们可以将数据库连接池的 validateQuery、testOnBorrow(testOnReturn)打开，这样在 每次从连接池中取出且准备使用之前(或者使用完且在放入连接池之前)先测试下当前使用是否好用，如果不好用，系统就会自动destory掉。
 或者testWhileIdle项是设置是否让后台线程定时检查连接池中连接的可用性。
+
+
+
+#####MySQL访问权限设置
+
+
+指定用户访问，设置访问密码，指定访问主机。
+
+* 设置访问单个数据库权限
+
+		mysql>grant all privileges on test.* to 'root'@'%';（说明：设置用户名为root，密码为空，可访问数据库test）
+ 
+* 设置访问全部数据库权限
+
+		mysql>grant all privileges on *.* to 'root'@'%';（说明：设置用户名为root，密码为空，可访问所有数据库*）
+
+* 设置指定用户名访问权限
+
+		mysql>grant all privileges on *.* to 'lanping'@'%';（说明：设置指定用户名为 lanping ，密码为空，可访问所有数据库*）
+
+* 设置密码访问权限
+
+		mysql>grant all privileges on *.* to 'lanping'@'%' IDENTIFIED BY ' lanping';（说明：设置指定用户名为 lanping ，密码为 lanping ，可访问所有数据库*）
+
+* 设置指定可访问主机权限
+
+
+		mysql>grant all privileges on *.* to ' lanping '@'10.2.1.11';说明：设置指定用户名为 lanping ，可访问所有数据库*，只有127.0.0.1这台机器有权限访问
+
+
+#####Navicat无法访问虚拟机里的mysql
+
+注释/etc/mysql/my.cnf里的
+
+	bind-address           = 127.0.0.1
+
+一行并重启mysql
+
+设置访问权限
+
+	grant all privileges on *.* to 'root'@'172.16.1.100' identified by '123456' 
