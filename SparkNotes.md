@@ -33,3 +33,8 @@
 加载hdfs文件
 
 	val file =sc.textFile("hdfs://finger-test2:54310/home/TagHierarchy/comatrix_ct")
+
+
+
+####Spark优化
+
