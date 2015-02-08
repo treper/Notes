@@ -1,3 +1,7 @@
+#####添加box
+
+	vagrant box add storm xxx.box
+
 #####通用虚拟机box制作
 1. vagrant启动base之后安装所需要的软件，
  
