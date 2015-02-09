@@ -14,6 +14,7 @@ HashMap
 
 	0 2 4:
 	4 Hash-> 0 -> delete 0 group -> out 0 [0 2 4]
+	2 Hash-> null
 	0 Hash-> null
 	
 	0 2 4 6:
@@ -28,6 +29,21 @@ HashMap
 	5 Hash-> null
 	3 Hash-> 0 -> -> delete 0 group -> out 0 [1 3]
 	1 Hash-> null 
+
+
+#####PFPGrowth的性能
+
+根据PFP Parallel FP-Growth for Query Recommendation中的性能测试，各步骤耗时如下：
+
+step1:
+
+step2:
+
+step3:
+
+step4:
+
+step1:
 
 
 
