@@ -131,3 +131,25 @@ U-P 行键是userid    列族和列为product：productid
 #####实时类应用
 
 和Facebook类似，我们也使用了hbase做为实时计算类项目的存储层。目前对内部己经上线了部分实时项目，比如**实时页面点击系统**，galaxy**实时交易推荐**以及**直播间**等内部项目，用户则是散布到公司内各部门的运营小二们。与facebook的puma不同的是淘宝使用了多种方式做实时计算层，比如galaxy是使用类似affa的actor模式处理交易数据，同时关联商品表等维度表计算排行(TopN)，而实时页面点击系统则是基于twitter开源的**storm**进行开发，后台通过TT获取实时的日志数据，计算流将中间结果以及动态维表持久化到hbase上，比如我们将rowkey设计为url+userid，并读出实时的数据，从而实现实时计算各个维度上的uv。
+
+
+
+
+#####异步Hbase AsyncHBase
+
+Multiple batches of 10k *new/updated* rows at any time to different tables
+by different clients simultaneously. I want these multiple batches of
+insertions to be done super fast. At the same time, I would like to be able
+to scale up to 100k rows at a time (the goal). Now, I am building a cluster
+of size 6 to 7 nodes.
+If you're writing a multi-threaded client and you're going to have
+many clients like this writing to HBase continuously, I recommend
+writing your application with asynchbase
+(http://github.com/stumbleupon/asynchbase) instead. It's an alternate
+HBase client library I wrote and in my application it significantly
+increased write throughput. It can easily push 150k updates per
+second to a 20-node cluster – and then it's the local machine that's
+CPU bound, not the HBase cluster (the local machine is a very slow VM
+so it doesn't have a lot of horsepower). This client is especially
+good for throughput oriented workloads and was written to be
+thread-safe from the ground up (unlike HTable).
