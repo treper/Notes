@@ -62,3 +62,4 @@ select hello(url) from page_views limit 1;
 
 
 Spark SQL中缓存表一定要用cacheTable(“tableName”)这种形式，否则无法享受到列式存储带来的一系列好处，但是很多朋友仍然采用rdd.cache这种原生的方式来缓存，社区也意识到这样不行，所以现在无论是cacheTable还是直接cache，都是表达相同的语义，都能享受到列式存储带来的好处。
+
