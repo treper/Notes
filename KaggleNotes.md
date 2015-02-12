@@ -72,7 +72,7 @@
 
 2. 用GBDT生成特征
 
-30棵树，深度为7
+输入为dense和sparse数据，训练30棵树，深度为7
 
 	vagrant@vagrant-VirtualBox:~/software/kaggle-2014-criteo$ cat tr.gbdt.out |head -2
 	-1 147 232 226 142 227 228 194 202 196 248 193 147 159 248 213 135 136 150 143 132 152 129 184 216 136 224 128 236 233 247

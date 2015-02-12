@@ -25,6 +25,9 @@
 
 #####Regularization
 
+Regularization make model simple and prediction stable
+
+
 存在大量噪声特征时，L1正则化的LogisticRegression只需要与特征维度成对数比的训练样本，L2及其他旋转不变的模型需要线性比例的训练样本。
 
 L1与L2的区别
@@ -319,6 +322,17 @@ C4.5使用了信息增益率，在信息增益的基础上除了一项split info
 
 Bagging works well for unstable base models and can reduce variance in predictions. Boosting can be used with any type of model and can reduce variance and bias in predictions.
 
+Tree Ensemble methods
+
+* Very widely used, look for GBM, random forest…
+Almost half of data mining competition are won by using some variants of tree ensemble methods
+
+* Invariant to scaling of inputs, so you do not need to do careful features normalization.
+
+* Learn higher order interaction between features.
+
+* Can be scalable, and are used in Industry
+
 #####Averaging methods
 
 Examples: Bagging methods, Forests of randomized trees...
@@ -326,6 +340,10 @@ Examples: Bagging methods, Forests of randomized trees...
 #####Boosting methods
 
 Examples: AdaBoost, Gradient Tree Boosting, ..
+
+######GBDT
+
+http://homes.cs.washington.edu/~tqchen/pdf/BoostedTree.pdf
 
 #####Boosting
 
@@ -562,6 +580,25 @@ DBSCAN
 #####机器学习博客列表
 
 [http://fastml.com/](http://fastml.com/)
+
+####
+
+一些可以做的最基本的数据分析工作：
+
+1. 特征的分布：按特征的取值分段，每一段包含的样本数量，特征均值，方差。
+2. 目标分布同上
+3. 特征目标关系：特征分段，每段中包含的样本的目标取值。
+4. 目标特征关系：目标分段，每段中包含的样本的特征取值
+
+模型在训练数据上效果不错，但做Cross-validation效果不佳主要原因有两个：
+
+1. 选取的样本数据太少，覆盖度不够，考虑增加训练样本
+2. 样本特征过多，可以考虑减少一些特征，只留下重要的特征
+
+模型在类似Cross-validation这样的封闭测试上效果不错，但在开放测试上效果不佳
+
+1. 选取的训练数据覆盖度不够，不具备代表性，不能体现真实数据的分布。
+2. 模型迁移（Model drift），随着时间变化，特征数据也随之变化。比如3个月前做的模型对现在的特征可能不会有好的效果。
 
 
 #####实际问题解决
