@@ -94,3 +94,57 @@ GBDT:directly includ
 4. 生成Factorization Machine的特征
 4. Hash trick
 5. 预测
+
+
+
+
+一起读论文吧，title：Practical Lessons from Predicting Clicks on Ads at Facebook
+本问给出了一种模型融合方法的模型，即：GBDT+LR，进行CTR预估。并在此基础上研究了一些基本参数（例如：SGD的学习率、树的棵树与树的深度等）是如何影响最终模型的性能的，并最终表明一旦获取正确的特征和正确的模型（GBDT+LR）其他的因素对最终的预测起到非常小的作用。
+ Practical_Lessons_from_Predicting_Clicks_on_Ads_at_Facebook.pdf
+ 2  分享 2015-01-28
+July  mathdong
+11 个评论
+July
+July
+@mathdong
+2015-01-28 13:00
+mathdong
+mathdong
+这个我已经看过，研究了，是利用GBDT提取出数据的特征，然后利用GBDT提取出的特征与原始特征结合起来作为新的特征，然后利用logistic regression来预测ctr，据别人实验，效果不错，目前自己还在实验
+2015-01-28 14:16
+bamboo
+bamboo 回复 mathdong
+前些日子，按着这篇论文的思路实现一个GBDT+FM效果相当好，所以打算仔细的研究下这篇论文
+2015-01-28 14:39
+mathdong
+mathdong 回复 bamboo
+你用GBDT提取出数据的特征，然后再利用FM进行分类或回归？我前段时间单独跑了下FM，不过没有用GBDT提取特征，请问一下，你用GBDT提取特征是怎么来提取的啊？
+2015-01-28 14:54
+mathdong
+mathdong 回复 bamboo
+能不能好好聊聊，这个，我加你
+2015-01-28 14:55
+lucasyang
+lucasyang
+一直有个问题，什么时候用rf，什么时候GBDT？
+2015-01-28 15:21
+bamboo
+bamboo 回复 mathdong
+其实说白了，就是在用GBDT做特征离散化，变成0、1形式的布尔特征，再利用FM进行特征组合，这样就避免了很多人工的操作
+2015-01-28 15:24
+bamboo
+bamboo 回复 lucasyang
+我也不是太清楚什么时候选这两个中的哪一个，感觉差不多，但是rf可以并行创建，GBDT只能串行的创建，rf创建速度肯定比GBDT快，而且，rf不容易过拟合。rf采用投票的形式，GBDT则在残差的基础上继续学习，感觉GBDT更具有针对性。
+2015-01-28 17:24
+jiqihuman
+jiqihuman 回复 mathdong
+刚看了下abstract, cool!, 
+请教一下，这个实验对机器有要求不？数据量怎么样？单机能跑不？
+2015-01-29 16:11
+mathdong
+mathdong 回复 jiqihuman
+数据量这个太大的话，肯定还是对内存有要求啊，这个我是在服务器上跑的，内存大点。
+2015-01-29 18:45
+jiqihuman
+jiqihuman 回复 mathdong
+非常感谢
