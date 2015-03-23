@@ -168,6 +168,35 @@ one vs. all框架
 4. 使用相似item的平均值
 5. 使用机器学习算法来预测此值
 
+C4.5决策树中缺失值的处理
+
+在数据挖掘， 机器学习问题中， 很多时候会存在数据缺失，例如user profile构建数据中，用户性别，或是年龄，性别的数据缺失（比如用户没有填），一种选择是丢弃该类数据。但很多时候这类数据很多， 直接丢弃不能接受，所以模型需要有处理缺失值的能力， 这样才能发现更多模式。一般考虑缺失值的时候，需要考虑下边几个问题【2】：
+
+2个缺失值数量不一样的特征，选择哪个？
+选定拆分特征后，训练数据中有缺失值的instance归到哪个拆分分支？
+在分类的时候，instance的未知值如何处理？
+我们从information的定义出发， 在计算某维特征A的info时， 仅考虑A有值的instance。在A特征上， 对值x进行测试，计算info及info_x时仅考虑有值的情况；计算split ratio的时候， 需要考虑未知值。以此计算出gain 或是 gain ratio决定选择哪个特征进行拆分，计算方式为：gain(x) = A有值的概率 * （info(T) – info_x(T)） + A没有值的概率 * 0
+
+此处T为待测试的集合， A为待测试的属性， x为A上的测试点
+
+在Quinlan c4.5实现版本中，gain的计算方式如下
+
+屏幕快照 2014-09-21 下午1.33.13
+
+其中128行ThisInfo为仅考虑known值的info， 134行对其进行更新，其中 1-UnknFrac 表示在本拆分节点中known节点占比， BaseInfo为待拆分节点的info， 之所以134行ThisInfo要除以Totaltems，和TotalInfo的实现有关
+
+屏幕快照 2014-09-21 下午1.34.31
+
+TotalInfo实现： 就是Info乘上TotalItems倍，具体推导就是将log(a/b)分解为log(a)-log(b)就可以。使用此方式就能够处理未知特征选择的问题（缺失值问题1）
+
+在c4.5实现的过程中， 在处理缺失值问题2时，使用了一个诀窍解决按照分布将一个instance归到各子节点。c4.5实现时， 每个instance都是按照概率出现在某个分支中， 如果该instance没有特征缺失， 则在进行节点拆分的时候， 该节点只能落到唯一确定的分支中， 但如果instance 在待拆分的特征上值缺失， 则该instance会按照每个类别在known值在该节点出现的概率（weight），加入子分支。此处的问题是： 难道需要为每个有未知值的instance在每个分支均设置一个weight？ 那空间复杂度是无法忍受的。 c4.5实现版本巧妙地使用递归解决了该问题：
+
+屏幕快照 2014-09-21 下午1.55.09
+
+注意此处的Weight[i]表示第i条instance在当前分支的概率，在进入下一个分支时，先将weight[i]计算为下一个分支需要的值，并进入递归。待该分支子树都建立后， 再于361行， 恢复weight[i]的值
+
+在分类的时候 ，碰到未知特征分支时， 则需要计算所有子树特征，从weight累加计算出分布进行计算，时间复杂度和空间复杂度会急剧增加。所以最好的方式还是从特征的角度进行处理。
+
 
 [Logistic Regression垃圾邮件分类](http://guangchun.wordpress.com/2012/06/19/logistic-regression/)
 
@@ -255,6 +284,12 @@ ID3使用信息增益，c4.5使用信息增益比，我在网上找到的说法�
 所以如果是取值更多的属性，更容易使得数据更“纯”（尤其是连续型数值），其信息增益更大，决策树会首先挑选这个属性作为树的顶点。结果训练出来的形状是一棵庞大且深度很浅的树，这样的划分是极为不合理的。
 
 C4.5使用了信息增益率，在信息增益的基础上除了一项split information,来惩罚值更多的属性。
+
+####GBDT(Gradient Boosting Decision Tree)
+
+为什么facebook用GBDT来做feature变换
+
+http://www.quora.com/Why-do-people-use-gradient-boosted-decision-trees-to-do-feature-transform
 
 #####随机森林实例
 
