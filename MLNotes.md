@@ -656,3 +656,97 @@ userId timestamp 对A品牌的点击数 对A品牌的收藏数目
 * 建立用户的价格偏好
 
 ####什么是模式识别
+
+
+###特征选择
+
+去除冗余，无关
+redundant,irrelevant
+
+优点:
+
+* efficiency 
+
+更简单的模型和更短的预测时间
+
+* generalization
+
+去除了噪声
+
+* interpretability
+
+可解释性
+
+缺点：
+
+* computation
+
+combinatorial optimization in training
+
+* overfit
+
+combinatorial selection
+
+* mis-interpretability
+
+####Feature Selection Algorithms
+
+There are three general classes of feature selection algorithms: filter methods, wrapper methods and embedded methods.
+
+**Filter Methods**
+
+Filter feature selection methods apply a statistical measure to assign a scoring to each feature. The features are ranked by the score and either selected to be kept or removed from the dataset. The methods are often univariate and consider the feature independently, or with regard to the dependent variable.
+
+Example of some filter methods include the Chi squared test, information gain and correlation coefficient scores.
+
+**Wrapper Methods**
+
+Wrapper methods consider the selection of a set of features as a search problem, where different combinations are prepared, evaluated and compared to other combinations. A predictive model us used to evaluate a combination of features and assign a score based on model accuracy.
+
+The search process may be methodical such as a best-first search, it may stochastic such as a random hill-climbing algorithm, or it may use heuristics, like forward and backward passes to add and remove features.
+
+An example if a wrapper method is the recursive feature elimination algorithm.
+
+**Embedded Methods**
+
+Embedded methods learn which features best contribute to the accuracy of the model while the model is being created. The most common type of embedded feature selection methods are regularization methods.
+
+Regularization methods are also called penalization methods that introduce additional constraints into the optimization of a predictive algorithm (such as a regression algorithm) that bias the model toward lower complexity (less coefficients).
+
+Examples of regularization algorithms are the LASSO, Elastic Net and Ridge Regression.
+
+特征选择的方法大致可分为如下几类：
+
+* 投影法：
+
+求出最优的投影向量w，绝对值较大的分量对应的特征即所选特征。求解w的方法很多，像LDA，linear SVM，Lasso regression，Sparse coding等都是适用的方法。
+
+* Wrapper：
+
+使得特征子集上的分类错误率最小。
+
+* Filter：
+
+对单个特征根据特定准则进行排序（如熵增益，分类错误率等），再选出其中排序较高、且、且互补性较强的构成特征子集。
+
+* 混合型
+
+先用filter滤除候选特征，再用其它方法从中进行筛选。
+针对2，3，4方法，可以用顺序前向/后向方法（Sequential Forward/Backward Search）进行特征子集挑选。
+
+再补充一篇参考文献：I. Guyon et al., An introduction to variable and feature selection, JMLR, 2003
+
+
+
+- 数据降维 (Data Reduction)
+
+比如PCA这种降维方法最后的主成分（一般两个）很难具体的去解释，因为杂糅了诸多个自变量的主成分没有办法直接获得直观意义的诠释。相比之下，如果可以通过一系列尽管媲美黑魔法但的确有逻辑解释的计算方法，即特征选择，撇去某一些无关紧要的自变量，那么恭喜你，你又迈出了刷算法当屌丝的一步。关于特征选择，这里有几个我读过的相关资料：
+    10. [Data Mining Algorithms In R/Dimensionality Reduction/Feature Selection](http://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Dimensionality_Reduction/Feature_Selection)有代码有实战
+    20. An Introduction to Feature Selection [不错的介绍](http://machinelearningmastery.com/an-introduction-to-feature-selection/)
+    30. Statistical Learning, Chapter 6. 系统介绍了 Subset Selection, Shrinkage (或叫做regularization，比如常用的LASSO), Dimension Reduction. 
+    40. Feature selection: Using the caret package 一篇2010年的[老文](http://www.r-bloggers.com/feature-selection-using-the-caret-package/)
+
+- 混杂（confounding）。大白话就是自变量彼此之间有一定关联，比如miRNA彼此。这种相爱相杀的关联真的让你分析时醉生梦死。文中提到Surrogate Variable Analysis可以解决。我也看过一些相关的读物：
+    10. Bioconductor上的SVA包，Jef Leek（就是写博客开R公开课的三剑客之一）领衔编写
+    20. [Identifying Correlated Predictors using Caret](http://topepo.github.io/caret/preprocess.html)
+    30. [Feature Selection with the Caret R Package](http://machinelearningmastery.com/feature-selection-with-the-caret-r-package/)
