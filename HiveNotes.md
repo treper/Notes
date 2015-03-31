@@ -163,3 +163,10 @@ Error: java.io.IOException: hdfs://finger-test1:9100/mps/md5_labels_processed/pa
         at org.apache.hadoop.mapred.YarnChild.main(YarnChild.java:155)
 
 and I have inspceted the output it is TextOutputFormat. I don't know why this error occurs because this is really strange. Have anybody encountered this kind of problem? 
+
+
+添加行号
+
+add jar /home/zhoushugang/apache-hive-0.13.1-bin/lib/hive-contrib-0.13.1.jar;
+drop temporary function row_sequence;
+create temporary function row_sequence as 'org.apache.hadoop.hive.contrib.udf.UDFRowSequence';
